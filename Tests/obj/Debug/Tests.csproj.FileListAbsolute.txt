@@ -1,0 +1,16 @@
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\Tests.dll
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\Tests.pdb
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\FluentAssertions.dll
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\nunit.framework.dll
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\SQLxt.dll
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\System.ValueTuple.dll
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\SQLxt.pdb
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\FluentAssertions.pdb
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\FluentAssertions.xml
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\nunit.framework.xml
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\bin\Debug\System.ValueTuple.xml
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\obj\Debug\Tests.csprojAssemblyReference.cache
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\obj\Debug\Tests.csproj.CoreCompileInputs.cache
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\obj\Debug\Tests.csproj.CopyComplete
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\obj\Debug\Tests.dll
+C:\Users\Imbaker1234\source\repos\SQLxt\Tests\obj\Debug\Tests.pdb

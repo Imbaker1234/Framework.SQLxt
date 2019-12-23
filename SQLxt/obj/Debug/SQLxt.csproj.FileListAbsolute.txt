@@ -1,0 +1,6 @@
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\bin\Debug\SQLxt.dll
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\bin\Debug\SQLxt.pdb
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\obj\Debug\SQLxt.csprojAssemblyReference.cache
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\obj\Debug\SQLxt.csproj.CoreCompileInputs.cache
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\obj\Debug\SQLxt.dll
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\obj\Debug\SQLxt.pdb
