@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 
 namespace SQLxt
 {
@@ -42,6 +43,27 @@ namespace SQLxt
             }
 
             return DatabaseType.SQL;
+        }
+
+        public static string ToCsv(this string[] strings)
+        {
+            var sb = new StringBuilder();
+
+            for (int i = 0; i < strings.Length; i++)
+            {
+                sb.Append($"'{strings[i]}'");
+                if (i < strings.Length) sb.Append(", ");
+            }
+
+            return sb.ToString();
+        }
+
+        public static object ExecuteScalar(this DbCommand command)
+        {
+            var product = command.ExecuteScalar();
+            command.Dispose();
+
+            return product;
         }
     }
 }

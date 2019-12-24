@@ -20,7 +20,9 @@ namespace Tests
         public string ConnectionString =
             @"Data Source=(local)\SQLEXPRESS;Initial Catalog=SampleDB;Integrated Security=True";
 
-        public string Odbc = @"Driver={SQL Server};Server=myServerAddress;Database=myDataBase;Uid=myUsername;Pwd=myPassword;";
+        public string Odbc =
+            @"Driver={SQL Server};Server=myServerAddress;Database=myDataBase;Uid=myUsername;Pwd=myPassword;";
+
         public string Ole =
             @"Provider=sqloledb;Data Source=myServerAddress;Initial Catalog=myDataBase;User Id=myUsername;Password=myPassword;";
 
@@ -42,9 +44,12 @@ namespace Tests
             var odbc = new DbOperator(Odbc);
             var ole = new DbOperator(Ole);
 
-            sut.Command(sut.Connection(), "").Should().BeOfType<SqlCommand>("An SQL Operator should provide an SQL connection");
-            ole.Command(ole.Connection(), "").Should().BeOfType<OleDbCommand>("An OLE Operator should provide an OLE connection");
-            odbc.Command(odbc.Connection(), "").Should().BeOfType<OdbcCommand>("An ODBC Operator should provide an ODBC connection");
+            sut.Command("").Should()
+                .BeOfType<SqlCommand>("An SQL Operator should provide an SQL connection");
+            ole.Command("").Should()
+                .BeOfType<OleDbCommand>("An OLE Operator should provide an OLE connection");
+            odbc.Command("").Should()
+                .BeOfType<OdbcCommand>("An ODBC Operator should provide an ODBC connection");
         }
 
         [Test]
@@ -53,7 +58,6 @@ namespace Tests
             DbOperator.DetermineType(ConnectionString).Should().Be(DatabaseType.SQL);
             DbOperator.DetermineType(Odbc).Should().Be(DatabaseType.ODBC);
             DbOperator.DetermineType(Odbc).Should().Be(DatabaseType.ODBC);
-
         }
 
         [Test]
@@ -148,6 +152,28 @@ namespace Tests
         }
 
         [Test]
+        public void ObjectsWillGoOutOfScope()
+        {
+            var sut = new DbOperator(ConnectionString);
+
+            DbCommand cmd;
+            Console.WriteLine("Before the block.");
+            using (var cnn = sut.Connection())
+            {
+                cnn.Open();
+
+                using (cmd = sut.Command("", cnn))
+                {
+                    Console.WriteLine(cmd.Connection is null ? "Null" : "Present");
+                    Console.WriteLine(cmd.Connection is null ? "Null" : "Present");
+                    Console.WriteLine(cmd.Connection is null ? "Null" : "Present");
+                }
+            }
+
+            Console.WriteLine("After the block");
+        }
+
+        [Test]
         public void SelectScalarTest()
         {
             var sut = new DbOperator(ConnectionString);
@@ -163,10 +189,10 @@ namespace Tests
             string goodSql = "DELETE FROM CCS WHERE ID = 'KingKrab'";
             Action good = () => sut.SanityCheck(goodSql);
 
-            string badSql = "DELETE FROM CCS"; 
+            string badSql = "DELETE FROM CCS";
             Action bad = () => sut.SanityCheck(badSql);
 
-            string irrelevantSql = "SELECT * FROM CCS"; 
+            string irrelevantSql = "SELECT * FROM CCS";
             Action irrelevant = () => sut.SanityCheck(irrelevantSql);
 
             good.Should().NotThrow("This has a where clause and is safe.");

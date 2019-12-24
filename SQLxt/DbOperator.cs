@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Data.Odbc;
 using System.Data.OleDb;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace SQLxt
 {
@@ -41,18 +42,37 @@ namespace SQLxt
             }
         }
 
-        public DbCommand Command(DbConnection connection, string sql)
+        public DbCommand Command(string sql, DbConnection connection = null)
         {
             switch (_type)
             {
                 case DatabaseType.ODBC:
+                    if (connection is null)
+                    {
+                        connection = new OdbcConnection(_connectionString);
+                        connection.Open();
+                    }
+
                     return new OdbcCommand(sql, (OdbcConnection) connection);
 
                 case DatabaseType.OLE:
+                    if (connection is null)
+                    {
+                        connection = new OleDbConnection(_connectionString);
+                        connection.Open();
+                    }
+
                     return new OleDbCommand(sql, (OleDbConnection) connection);
 
                 case DatabaseType.SQL:
+                    if (connection is null)
+                    {
+                        connection = new SqlConnection(_connectionString);
+                        connection.Open();
+                    }
+
                     return new SqlCommand(sql, (SqlConnection) connection);
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -82,13 +102,9 @@ namespace SQLxt
 
             List<Dictionary<string, object>> result = null;
 
-            using (var cnn = Connection())
+            using (var cmd = Command(sql))
             {
-                cnn.Open();
-                using (var cmd = Command(cnn, sql))
-                {
-                    result = cmd.ExecuteReader().ToDictionary();
-                }
+                result = cmd.ExecuteReader().ToDictionary();
             }
 
             return result;
@@ -100,20 +116,17 @@ namespace SQLxt
 
             int product;
 
-            using (var cnn = Connection())
+            using (var cmd = Command(sql))
             {
-                cnn.Open();
-                using (var cmd = Command(cnn, sql))
-                {
-                    product = cmd.ExecuteNonQuery();
-                }
+                product = cmd.ExecuteNonQuery();
             }
 
             return product;
         }
 
 
-        public List<Dictionary<string, object>> SelectLike(string selectThis, string fromTable, string whereThis, string likeThat,
+        public List<Dictionary<string, object>> SelectLike(string selectThis, string fromTable, string whereThis,
+            string likeThat,
             bool not = false)
         {
             string sql =
@@ -127,69 +140,60 @@ namespace SQLxt
 
             List<Dictionary<string, object>> product = null;
 
-            using (var cnn = Connection())
+            using (var cmd = Command(sql))
             {
-                cnn.Open();
-                using (var cmd = Command(cnn, sql))
-                {
-                    product = cmd.ExecuteReader().ToDictionary();
-                }
+                product = cmd.ExecuteReader().ToDictionary();
             }
 
             return product;
         }
 
-        public object SelectScalar(string selectThis, string fromTable, string whereThis, string equalsThat,
-            bool not = false)
+        public object SelectScalar(string selectThis, string fromTable, string whereThis, string equalsThat)
         {
             string sql =
                 $"SELECT {selectThis} " +
                 $"FROM {fromTable} " +
-                $"WHERE {whereThis} ";
-
-            if (not) sql += '!';
-
-            sql += $"= '{equalsThat}'";
+                $"WHERE {whereThis} " +
+                $"= '{equalsThat}'";
 
             object product;
 
-            using (var cnn = Connection())
+            using (var cmd = Command(sql))
             {
-                cnn.Open();
-                using (var cmd = Command(cnn, sql))
-                {
-                    product = cmd.ExecuteScalar();
-                }
+                product = cmd.ExecuteScalar();
             }
 
             return product;
         }
 
+        public int Delete(string deleteThis, string fromTable, string whereThis, bool not = false,
+            params string[] inThat)
+        {
+            string sql =
+                $"DELETE FROM {fromTable} " +
+                $"WHERE {whereThis} ";
+
+            if (not) sql += "NOT ";
+
+            sql += $"IN ({inThat.ToCsv()})";
+
+            return ExecuteNonQuery(sql);
+        }
+
+
         public List<Dictionary<string, object>> Select(string selectThis, string fromTable, string whereThis,
-            string equalsThat,
-            bool not = false)
+            bool not = false, params string[] inThat)
         {
             string sql =
                 $"SELECT {selectThis} " +
                 $"FROM {fromTable} " +
                 $"WHERE {whereThis} ";
 
-            if (not) sql += '!';
+            if (not) sql += "NOT";
 
-            sql += $"= '{equalsThat}'";
+            sql += $"IN ({inThat.ToCsv()})'";
 
-            List<Dictionary<string, object>> product = null;
-
-            using (var cnn = Connection())
-            {
-                cnn.Open();
-                using (var cmd = Command(cnn, sql))
-                {
-                    product = cmd.ExecuteReader().ToDictionary();
-                }
-            }
-
-            return product;
+            return Select(sql);
         }
 
         public void SanityCheck(string sql)
@@ -199,7 +203,6 @@ namespace SQLxt
                 && !s.Contains("where"))
                 throw new Exception("Cannot run a DELETE or UPDATE statement " +
                                     "without a WHERE clause.");
-
         }
     }
 }

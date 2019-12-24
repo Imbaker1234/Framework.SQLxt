@@ -16,13 +16,20 @@ namespace SQLxt
         DbConnection Connection();
 
         /// <summary>
+        /// <para>
         /// Provides a DbCommand object of the appropriate type
         /// for the database in use.
+        /// </para>
+        /// <para>
+        /// Optionally providing only a SQL string will immediately
+        /// provide an open connection of the type appropriate for
+        /// the database.
+        /// </para>
         /// </summary>
         /// <param name="connection"></param>
         /// <param name="sql"></param>
         /// <returns></returns>
-        DbCommand Command(DbConnection connection, string sql);
+        DbCommand Command(string sql, DbConnection connection = null);
 
         /// <summary>
         /// Determines what type of database is specified by the
@@ -103,7 +110,7 @@ namespace SQLxt
         /// <param name="equalsThat"></param>
         /// <param name="not"></param>
         /// <returns></returns>
-        object SelectScalar(string selectThis, string fromTable, string whereThis, string equalsThat, bool not = false);
+        object SelectScalar(string selectThis, string fromTable, string whereThis, string equalsThat);
 
         /// <summary>
         /// <para>
@@ -129,11 +136,11 @@ namespace SQLxt
         /// <param name="selectThis"></param>
         /// <param name="fromTable"></param>
         /// <param name="whereThis"></param>
-        /// <param name="equalsThat"></param>
         /// <param name="not"></param>
+        /// <param name="inThat"></param>
         /// <returns></returns>
         List<Dictionary<string, object>> Select(string selectThis, string fromTable, string whereThis,
-            string equalsThat, bool not = false);
+            bool not = false, params string[] inThat);
 
         /// <summary>
         /// <para>
