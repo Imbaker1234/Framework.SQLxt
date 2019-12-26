@@ -1,153 +1,91 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Data.Odbc;
-using System.Data.OleDb;
-using System.Data.SqlClient;
+using System.Data;
 using System.Text;
 
 namespace SQLxt
 {
-    public class DbOperator : IDbOperator
+    public abstract class DbOperator : IDbOperator
     {
-        private readonly string _connectionString;
-        private readonly DatabaseType _type;
+        public string ConnectionString { get; set; }
 
-        public DbOperator(string connectionString)
+        protected DbOperator(string connectionString)
         {
-            _connectionString = connectionString;
-            _type = DetermineType(connectionString);
+            ConnectionString = connectionString;
         }
+        public abstract IDbConnection GetConnection(string connectionString = null);
 
-        public DbOperator(string connectionString, DatabaseType type)
-        {
-            _connectionString = connectionString;
-            _type = type;
-        }
+        public abstract IDbCommand Command(string sql, IDbConnection connection);
 
-        public DbConnection Connection()
-        {
-            switch (_type)
-            {
-                case DatabaseType.ODBC:
-                    return new OdbcConnection(_connectionString);
-
-                case DatabaseType.OLE:
-                    return new OleDbConnection(_connectionString);
-
-                case DatabaseType.SQL:
-                    return new SqlConnection(_connectionString);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public DbCommand Command(string sql, DbConnection connection = null)
-        {
-            switch (_type)
-            {
-                case DatabaseType.ODBC:
-                    if (connection is null)
-                    {
-                        connection = new OdbcConnection(_connectionString);
-                        connection.Open();
-                    }
-
-                    return new OdbcCommand(sql, (OdbcConnection) connection);
-
-                case DatabaseType.OLE:
-                    if (connection is null)
-                    {
-                        connection = new OleDbConnection(_connectionString);
-                        connection.Open();
-                    }
-
-                    return new OleDbCommand(sql, (OleDbConnection) connection);
-
-                case DatabaseType.SQL:
-                    if (connection is null)
-                    {
-                        connection = new SqlConnection(_connectionString);
-                        connection.Open();
-                    }
-
-                    return new SqlCommand(sql, (SqlConnection) connection);
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public static DatabaseType DetermineType(string connectionString)
-        {
-            if (connectionString.ToLower().Contains("provider") &&
-                connectionString.ToLower().Contains("initial catalog"))
-            {
-                return DatabaseType.OLE;
-            }
-
-            if (connectionString.ToLower().Contains("driver"))
-            {
-                return DatabaseType.ODBC;
-            }
-
-            return DatabaseType.SQL;
-        }
-
-        public List<Dictionary<string, object>> Select(string sql)
+        //CORE
+        public List<Dictionary<string, object>> Query(string sql)
         {
             SanityCheck(sql);
 
-            DbDataReader product;
-
             List<Dictionary<string, object>> result = null;
 
-            using (var cmd = Command(sql))
+            using (var cnn = GetConnection())
             {
-                result = cmd.ExecuteReader().ToDictionary();
+                cnn.Open();
+                using (var cmd = Command(sql, cnn))
+                {
+                    result = cmd.ExecuteReader().ToResultList();
+                }
             }
 
             return result;
         }
 
+        //CORE
         public int ExecuteNonQuery(string sql)
         {
             SanityCheck(sql);
 
             int product;
-
-            using (var cmd = Command(sql))
+            using (var cnn = GetConnection())
             {
-                product = cmd.ExecuteNonQuery();
+                cnn.Open();
+                using (var cmd = Command(sql, cnn))
+                {
+                    product = cmd.ExecuteNonQuery();
+                }
             }
 
             return product;
         }
 
-
-        public List<Dictionary<string, object>> SelectLike(string selectThis, string fromTable, string whereThis,
-            string likeThat,
-            bool not = false)
+        public List<Dictionary<string, object>> SelectLike(string selectThis, string fromTable, string whereThis, string likeThat, bool not = false)
         {
-            string sql =
+            var sql = new StringBuilder();
+            sql.Append(
                 $"SELECT {selectThis} " +
                 $"FROM {fromTable} " +
-                $"WHERE {whereThis} ";
+                $"WHERE {whereThis} ");
 
-            if (not) sql += "NOT ";
+            if (not) sql.Append("NOT ");
 
-            sql += $"LIKE '{likeThat}'";
+            sql.Append($"LIKE '{likeThat}'");
 
-            List<Dictionary<string, object>> product = null;
-
-            using (var cmd = Command(sql))
-            {
-                product = cmd.ExecuteReader().ToDictionary();
-            }
-
-            return product;
+            return Query(sql.ToString());
         }
 
+        //Keep
+        public int Update(string updateTable, string setThis, string toThat, string whereThis, bool not = false, params string[] inThat)
+        {
+            var sql = new StringBuilder();
+            sql.Append(
+                $"UPDATE {updateTable} " +
+                $"SET {setThis} = {toThat} " + 
+                $"WHERE {whereThis}");
+
+            if (not) sql.Append("NOT ");
+
+            sql.Append(inThat.ToCsv());
+
+            return ExecuteNonQuery(sql.ToString());
+        }
+
+        //Keep
         public object SelectScalar(string selectThis, string fromTable, string whereThis, string equalsThat)
         {
             string sql =
@@ -158,42 +96,49 @@ namespace SQLxt
 
             object product;
 
-            using (var cmd = Command(sql))
+            using (var cnn = GetConnection())
             {
-                product = cmd.ExecuteScalar();
+                cnn.Open();
+                using (var cmd = Command(sql, cnn))
+                {
+                    product = cmd.ExecuteScalar();
+                }
             }
 
             return product;
         }
 
-        public int Delete(string deleteThis, string fromTable, string whereThis, bool not = false,
-            params string[] inThat)
-        {
-            string sql =
-                $"DELETE FROM {fromTable} " +
-                $"WHERE {whereThis} ";
-
-            if (not) sql += "NOT ";
-
-            sql += $"IN ({inThat.ToCsv()})";
-
-            return ExecuteNonQuery(sql);
-        }
-
-
+        //Keep
         public List<Dictionary<string, object>> Select(string selectThis, string fromTable, string whereThis,
             bool not = false, params string[] inThat)
         {
-            string sql =
+            var sql = new StringBuilder();
+            sql.Append(
                 $"SELECT {selectThis} " +
                 $"FROM {fromTable} " +
-                $"WHERE {whereThis} ";
+                $"WHERE {whereThis} ");
 
-            if (not) sql += "NOT";
+            if (not) sql.Append("NOT ");
 
-            sql += $"IN ({inThat.ToCsv()})'";
+            sql.Append(inThat.ToCsv());
 
-            return Select(sql);
+            return Query(sql.ToString());
+        }
+
+
+        public int Delete(string deleteThis, string fromTable, string whereThis, bool not = false,
+            params string[] inThat)
+        {
+            StringBuilder sql = new StringBuilder();
+            sql.Append(
+                $"DELETE FROM {fromTable} " +
+                $"WHERE {whereThis} ");
+
+            if (not) sql.Append("NOT ");
+
+            sql.Append(inThat.ToCsv());
+
+            return ExecuteNonQuery(sql.ToString());
         }
 
         public void SanityCheck(string sql)

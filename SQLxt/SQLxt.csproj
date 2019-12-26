@@ -44,9 +44,13 @@
   <ItemGroup>
     <Compile Include="DatabaseType.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="IDbOperator.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DbOperator.cs" />
+    <Compile Include="IDbOperator.cs" />
+    <Compile Include="OdbcDbOperator.cs" />
+    <Compile Include="OleDbOperator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlDbOperator.cs" />
+    <Compile Include="DbOperatorFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

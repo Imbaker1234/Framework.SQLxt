@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -8,20 +11,30 @@ namespace SQLxt
 {
     public static class Extensions
     {
-        public static List<Dictionary<string, object>> ToDictionary(this DbDataReader reader)
+        public static List<Dictionary<string, object>> ToResultList(this IDataReader reader)
         {
-            return (from object record in reader
-                select Enumerable.Range(0, reader.FieldCount)
-                    .ToDictionary(reader.GetName, reader.GetValue)).ToList();
+            var results = new List<Dictionary<string, object>>();
+
+            while (reader.Read())
+            {
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    results.Add(Enumerable.Range(0, reader.FieldCount)
+                        .ToDictionary(reader.GetName, reader.GetValue));
+                }
+            }
+
+            return results;
         }
 
-        public static Dictionary<string, object> ToKeyValuePairs(this DbDataReader reader)
+        public static Dictionary<string, object> ToKeyValuePairs(this IDataReader reader)
         {
-            if(reader.FieldCount != 2) throw new Exception("This method can only convert results with exactly two columns.");
+            if (reader.FieldCount != 2)
+                throw new Exception("This method can only convert results with exactly two columns.");
 
             var product = new Dictionary<string, object>();
 
-            while(reader.Read())
+            while (reader.Read())
             {
                 product.Add(reader.GetString(0), reader.GetValue(0));
             }
@@ -56,14 +69,6 @@ namespace SQLxt
             }
 
             return sb.ToString();
-        }
-
-        public static object ExecuteScalar(this DbCommand command)
-        {
-            var product = command.ExecuteScalar();
-            command.Dispose();
-
-            return product;
         }
     }
 }

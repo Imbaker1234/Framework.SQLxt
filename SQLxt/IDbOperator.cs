@@ -8,12 +8,15 @@ namespace SQLxt
 {
     public interface IDbOperator
     {
+        string ConnectionString { get; set; }
         /// <summary>
+        /// <para>
         /// Returns a DbConnection object of the appropriate type
         /// for the database in use.
+        /// </para>
         /// </summary>
         /// <returns></returns>
-        DbConnection Connection();
+        IDbConnection GetConnection(string connectionString = null);
 
         /// <summary>
         /// <para>
@@ -29,7 +32,7 @@ namespace SQLxt
         /// <param name="connection"></param>
         /// <param name="sql"></param>
         /// <returns></returns>
-        DbCommand Command(string sql, DbConnection connection = null);
+        IDbCommand Command(string sql, IDbConnection connection = null);
 
         /// <summary>
         /// Determines what type of database is specified by the
@@ -45,7 +48,7 @@ namespace SQLxt
         /// </summary>
         /// <param name="sql"></param>
         /// <returns></returns>
-        List<Dictionary<string, object>> Select(string sql);
+        List<Dictionary<string, object>> Query(string sql);
 
         /// <summary>
         /// Executes a Transact-SQL statement against the connection and returns the number of rows affected.
@@ -81,7 +84,7 @@ namespace SQLxt
         /// <param name="likeThat"></param>
         /// <param name="not"></param>
         /// <returns></returns>
-        List<Dictionary<string, object>> SelectLike(string selectThis, string fromTable, string whereThis, string likeThat, bool not);
+        List<Dictionary<string, object>> SelectLike(string selectThis, string fromTable, string whereThis, string likeThat, bool not = false);
 
         /// <summary>
         /// <para>
@@ -124,7 +127,7 @@ namespace SQLxt
         /// EXAMPLE:
         /// </para>
         /// <para>
-        /// DbService.Select("Discount", "Items", "ItemName", "Ugly Christmas Sweater");
+        /// DbService.Query("Discount", "Items", "ItemName", "Ugly Christmas Sweater");
         /// </para>
         /// <para>
         /// GENERATES:
