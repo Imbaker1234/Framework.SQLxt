@@ -1,0 +1,14 @@
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\bin\Debug\SQLxt.dll
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\bin\Debug\SQLxt.pdb
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\obj\Debug\SQLxt.csprojAssemblyReference.cache
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\obj\Debug\SQLxt.csproj.CoreCompileInputs.cache
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\obj\Debug\SQLxt.dll
+C:\Users\Imbaker1234\source\repos\SQLxt\SQLxt\obj\Debug\SQLxt.pdb
+C:\Users\Imbaker1234\source\repos\IMBFramework\SQLxt\bin\Debug\SQLxt.dll
+C:\Users\Imbaker1234\source\repos\IMBFramework\SQLxt\bin\Debug\SQLxt.pdb
+C:\Users\Imbaker1234\source\repos\IMBFramework\SQLxt\bin\Debug\SQLxt.dll.CodeAnalysisLog.xml
+C:\Users\Imbaker1234\source\repos\IMBFramework\SQLxt\bin\Debug\SQLxt.dll.lastcodeanalysissucceeded
+C:\Users\Imbaker1234\source\repos\IMBFramework\SQLxt\obj\Debug\SQLxt.csprojAssemblyReference.cache
+C:\Users\Imbaker1234\source\repos\IMBFramework\SQLxt\obj\Debug\SQLxt.csproj.CoreCompileInputs.cache
+C:\Users\Imbaker1234\source\repos\IMBFramework\SQLxt\obj\Debug\SQLxt.dll
+C:\Users\Imbaker1234\source\repos\IMBFramework\SQLxt\obj\Debug\SQLxt.pdb
